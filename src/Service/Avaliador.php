@@ -42,7 +42,7 @@ class Avaliador
         return $this->menorValor;
     }
 
-    public function getMaioresLances(): array
+    public function get3MaioresLances(): array
     {
         return $this->maioresLances;
     }
