@@ -2,3 +2,4 @@ vendor/
 .idea/
 .phpunit.cache/
 .phpunit.result.cache
+testes-executados.txt
