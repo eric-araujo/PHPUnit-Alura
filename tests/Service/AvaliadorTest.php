@@ -6,6 +6,7 @@ use Alura\Leilao\Model\Lance;
 use Alura\Leilao\Model\Leilao;
 use Alura\Leilao\Model\Usuario;
 use Alura\Leilao\Service\Avaliador;
+use DomainException;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -25,7 +26,7 @@ class AvaliadorTest extends TestCase
     {
         $this->leiloeiro->avaliar($leilao);
 
-        self::assertEquals(
+        static::assertEquals(
             expected: 20000,
             actual: $this->leiloeiro->getMaiorValor()
         );
@@ -38,7 +39,7 @@ class AvaliadorTest extends TestCase
     {
         $this->leiloeiro->avaliar($leilao);
 
-        self::assertEquals(
+        static::assertEquals(
             expected: 1000,
             actual: $this->leiloeiro->getMenorValor()
         );
@@ -53,10 +54,36 @@ class AvaliadorTest extends TestCase
 
         $maioresLances = $this->leiloeiro->get3MaioresLances();
 
-        self::assertCount(3, $maioresLances);
-        self::assertEquals(20000, $maioresLances[0]->getValor());
-        self::assertEquals(15000, $maioresLances[1]->getValor());
-        self::assertEquals(5000, $maioresLances[2]->getValor());
+        static::assertCount(3, $maioresLances);
+        static::assertEquals(20000, $maioresLances[0]->getValor());
+        static::assertEquals(15000, $maioresLances[1]->getValor());
+        static::assertEquals(5000, $maioresLances[2]->getValor());
+    }
+
+    public function testLeilaoVazioNaoPodeSerAvaliado(): void
+    {
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionMessage("Não é possível avaliar um leilão sem lances");
+
+        $leilao = new Leilao('Fusca Azul');
+        $this->leiloeiro->avaliar($leilao);
+    }
+
+    public function testLeilaoFinalizadoNaoPodeSerAvaliado(): void
+    {
+        $this->expectException(\DomainException::class);
+        $this->expectExceptionMessage("Leilão já finalizado");
+
+        $leilao = new Leilao("Honda Civic 2010");
+        $leilao->recebeLance(
+            new Lance(
+                new Usuario('Eric'),
+                20000
+            )
+        );
+        $leilao->finalizar();
+
+        $this->leiloeiro->avaliar($leilao);
     }
 
     public static function leilaoEmOrdemCrescente(): array

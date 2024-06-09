@@ -13,6 +13,14 @@ class Avaliador
 
     public function avaliar(Leilao $leilao): void
     {
+        if ($leilao->verificarSeLeilaoEstaFinalizado()) {
+            throw new \DomainException("Leilão já finalizado");
+        }
+
+        if (empty($leilao->getLances())) {
+            throw new \DomainException("Não é possível avaliar um leilão sem lances");
+        }
+
         $lances = $leilao->getLances();
 
         foreach ($lances as $lance) {
